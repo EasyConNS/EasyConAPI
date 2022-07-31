@@ -31,16 +31,20 @@ void EasyCon_script_init(void)
     {
         // flash instructions from firmware
         int len = mem[0] | ((mem[1] & 0b01111111) << 8);
+        EasyCon_write_start(0);
         for (int i = 0; i < len; i++)
             if (EasyCon_read_byte((uint8_t *)i) != mem[i])
                 EasyCon_write_byte((uint8_t *)i, mem[i]);
+        EasyCon_write_end(0);
     }
     memset(mem, 0, sizeof(mem));
 
     // randomize
     _seed = EasyCon_read_2byte((uint16_t *)SEED_OFFSET) + 1;
     srand(_seed);
+    EasyCon_write_start(1);
     EasyCon_write_2byte((uint16_t *)SEED_OFFSET, _seed);
+    EasyCon_write_end(1);
 
     // calculate direction presets
     for (int i = 0; i < 16; i++)
@@ -673,7 +677,9 @@ void EasyCon_script_task(void)
                         if (!_seed)
                         {
                             _seed = timer_ms;
+                            EasyCon_write_start(1);
                             EasyCon_write_2byte((uint16_t *)SEED_OFFSET, _seed);
+                            EasyCon_write_end(1);
                             srand(_seed);
                         }
                         REG(_ri0) = rand() % REG(_ri0);
@@ -770,8 +776,10 @@ void EasyCon_serial_task(int16_t byte)
         if (flash_index == flash_count)
         {
             // all bytes received
+            EasyCon_write_start(0);
             for (flash_index = 0; flash_index < flash_count; flash_index++, flash_addr++)
                 EasyCon_write_byte(flash_addr, SERIAL_BUFFER(flash_index));
+            EasyCon_write_end(0);
             EasyCon_serial_send(REPLY_FLASHEND);
         }
     }
@@ -853,7 +861,10 @@ void EasyCon_serial_task(int16_t byte)
                     break;
                 case CMD_LED:
                     _ledflag ^= 0x8;
+                    // there is no end , for flash one byte force
+                    EasyCon_write_start(1);
                     EasyCon_write_byte((uint8_t *)LED_SETTING, _ledflag);
+                    EasyCon_write_end(1);
                     EasyCon_runningLED_off();
                     EasyCon_serial_send(_ledflag);
                     break;

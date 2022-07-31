@@ -62,6 +62,16 @@ extern uint16_t EasyCon_read_2byte(uint16_t* addr);
  */
 extern void EasyCon_write_2byte(uint16_t* addr,uint16_t value);
 
+/* EasyCon start write to E2Prom or flash callback
+ * optional implement
+ */
+extern void EasyCon_write_start(uint8_t mode);
+
+/* EasyCon write to E2Prom or flash end callback 
+ * optional implement
+ */
+extern void EasyCon_write_end(uint8_t mode);
+
 /* running led on
  * need implement
  */

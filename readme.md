@@ -29,11 +29,15 @@ EasyCon的MCU的实现，只需要根据要求实现`EasyCon_API.c和EasyCon_API
 
 主要是定义EasyCon可以使用的内存大小，同时也是能使用的E2PROM大小或者Flash大小，根据板子可用情况定义，不要卡极限，出问题不好查。
 
+- 注意E2PROM和Flash需要的内存比 MEM_SIZE 大4字节
+
 ```c
 /**********************************************************************/
 // EasyCon API, you need set the MEM_SIZE that could use in your SRAM and (EEPROM or Flash)
+// EEPROM or Flash need 4 bytes more than MEM_SIZE, so make sure you have enough space for it
 /**********************************************************************/
 // #define MEM_SIZE      924
+// EEPROM or Flash Size = MEM_SIZE + 4 
 ```
 
 EasyCon的版本号在`EasyCon.c`中，不建议修改，会导致上位机不兼容
@@ -151,6 +155,20 @@ extern void ReleaseButtons(const uint16_t Button);
  * need implement
  */
 extern void SetHATSwitch(const uint8_t HAT);
+```
+
+还有两个接口是可选实现，主要是给flash上锁解锁使用的，其他情况下一般用不到
+
+```
+/* EasyCon start write to E2Prom or flash callback
+ * optional implement
+ */
+extern void EasyCon_write_start(uint8_t mode);
+
+/* EasyCon write to E2Prom or flash end callback 
+ * optional implement
+ */
+extern void EasyCon_write_end(uint8_t mode);
 ```
 
 
