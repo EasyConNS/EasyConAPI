@@ -13,9 +13,10 @@
 
 /**********************************************************************/
 // EasyCon API, you need set the MEM_SIZE that could use in your SRAM and (EEPROM or Flash)
+// EEPROM or Flash need 4 bytes more than MEM_SIZE, so make sure you have enough space for it
 /**********************************************************************/
 // #define MEM_SIZE      924
-
+// EEPROM or Flash Size = MEM_SIZE + 4 
 /**********************************************************************/
 // EasyCon API, you need to call them in somewhere
 /**********************************************************************/
