@@ -51,29 +51,6 @@ void HIDInit(void)
   //USB_Init();
 }
 
-void Report_Task(void);
-void HIDTask(void)
-{
-  // We need to run our task to process and deliver data for our IN and OUT endpoints.
-  Report_Task();
-  // We also need to run the main USB management task.
-  USB_USBTask();
-}
-
-// Fired to indicate that the device is enumerating.
-void EVENT_USB_Device_Connect(void)
-{
-  // We can indicate that we're enumerating here (via status LEDs, sound, etc.).
-
-  Device_Connected();
-}
-
-// Fired to indicate that the device is no longer connected to a host.
-void EVENT_USB_Device_Disconnect(void)
-{
-  // We can indicate that our device is not ready (via status LEDs, sound, etc.).
-}
-
 // Prepare the next report for the host.
 inline void GetNextReport(USB_JoystickReport_Input_t *const ReportData)
 {
@@ -101,3 +78,27 @@ void Report_Task(void)
     echo_ms = ECHO_INTERVAL;
   }
 }
+
+void HIDTask(void)
+{
+  // We need to run our task to process and deliver data for our IN and OUT endpoints.
+  Report_Task();
+  // We also need to run the main USB management task.
+  USB_USBTask();
+}
+
+// Fired to indicate that the device is enumerating.
+void EVENT_USB_Device_Connect(void)
+{
+  // We can indicate that we're enumerating here (via status LEDs, sound, etc.).
+
+  Device_Connected();
+}
+
+// Fired to indicate that the device is no longer connected to a host.
+void EVENT_USB_Device_Disconnect(void)
+{
+  // We can indicate that our device is not ready (via status LEDs, sound, etc.).
+}
+
+

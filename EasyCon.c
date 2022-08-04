@@ -133,7 +133,7 @@ void EasyCon_script_start(void)
     // reset variables
     wait_ms = 0;
     ///////////////////////////
-    ZeroEcho();
+    zero_echo();
     ///////////////////////////
     timer_ms = 0;
     tail_wait = 0;
