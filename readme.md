@@ -195,6 +195,41 @@ extern void EasyCon_script_stop(void);
 
 
 
+#### HID
+
+由于不同USB框架实现可能不尽相同，推荐使用目录下的HID文件或者模仿类似的结构
+
+- HID.h
+- HID.c
+
+HID中主要是需要实现当echo_ms耗尽时，可以发出一份报文（这个机制主要是用来保证不丢键的）
+
+```c
+// Process and deliver data from IN and OUT endpoints.
+void Report_Task(void)
+{
+  // If the device isn't connected and properly configured, we can't do anything here.
+  if (USB_DeviceState != DEVICE_STATE_Configured)
+    return;
+
+  // [Optimized] Only send data when changed.
+  if (echo_ms == 0)
+  {
+    // We'll create an empty report.
+    USB_JoystickReport_Input_t JoystickInputData;
+    // We'll then populate this report with what we want to send to the host.
+    GetNextReport(&JoystickInputData);
+    // Once populated, we can output this data to the host. We do this by first writing the data to the control stream.
+
+    Echo_Report();
+    // set interval
+    echo_ms = ECHO_INTERVAL;
+  }
+}
+```
+
+
+
 ## 简单运行
 
 初始化以后，直接运行即可，默认启动
