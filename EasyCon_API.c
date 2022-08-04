@@ -95,14 +95,6 @@ void EasyCon_serial_send(const char DataByte)
 
 // about hid report
 
-/* clean echo times in HID
- * need implement
- */
-void zero_echo(void)
-{
-
-}
-
 /* reset hid report to default.
  * need implement
  */

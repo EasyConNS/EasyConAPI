@@ -8,8 +8,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <LUFA/Drivers/Board/LEDs.h>
-#include "HID.h"
 
 /**********************************************************************/
 // EasyCon API, you need set the MEM_SIZE that could use in your SRAM and (EEPROM or Flash)
@@ -91,12 +89,9 @@ extern void EasyCon_blink_led(void);
  */
 extern void EasyCon_serial_send(const char DataByte);
 
+/**********************************************************************/
 // about hid report
-
-/* clean echo times in HID
- * need implement
- */
-extern void zero_echo(void);
+/**********************************************************************/
 
 /* reset hid report to default.
  * need implement

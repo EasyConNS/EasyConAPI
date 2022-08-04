@@ -13,7 +13,7 @@
 #define VERSION 0x46
 
 // if lost key too many, could increase it,recommand default value
-#define ECHO_TIMES 3
+#define ECHO_TIMES 2
 
 // constants
 #define SERIAL_BUFFER_SIZE 20
@@ -90,5 +90,9 @@
 #define _v mem[INS_OFFSET + 21]
 #define _flag mem[INS_OFFSET + 22]
 #define _seed *(uint16_t *)(mem + INS_OFFSET + 23)
+
+#define Max(a, b) ((a > b) ? (a) : (b))
+#define Min(a, b) ((a < b) ? (a) : (b))
+#define _BV(n) (1<<(n))
 
 #endif

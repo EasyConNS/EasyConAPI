@@ -61,7 +61,7 @@ extern void EasyCon_tick(void);
 extern void EasyCon_serial_task(int16_t byte);
 
 /* decrement
- * need call when get a report sent
+ * need call when a report sent
  */
 extern void EasyCon_decrease_report_echo(void);
 ```
@@ -114,11 +114,6 @@ extern void EasyCon_blink_led(void);
 extern void EasyCon_serial_send(const char DataByte);
 
 // about hid report
-
-/* clean echo times in HID
- * need implement
- */
-extern void zero_echo(void);
 
 /* reset hid report to default.
  * need implement
