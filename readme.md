@@ -42,6 +42,8 @@ EasyCon的MCU的实现，只需要根据要求实现`EasyCon_API.c和EasyCon_API
 
 EasyCon的版本号在`EasyCon.c`中，不建议修改，会导致上位机不兼容
 
+- 注意内存是512字节的，需要格外注意`MEM_SIZE`大小，很容易出现溢出的情况
+
 
 
 #### 回调
