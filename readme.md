@@ -37,7 +37,7 @@ EasyCon的MCU的实现，只需要根据要求实现`EasyCon_API.c和EasyCon_API
 // EEPROM or Flash need 4 bytes more than MEM_SIZE, so make sure you have enough space for it
 /**********************************************************************/
 // #define MEM_SIZE      924
-// EEPROM or Flash Size = MEM_SIZE + 4 
+// need EEPROM or Flash Size = MEM_SIZE + 4 
 ```
 
 EasyCon的版本号在`EasyCon.c`中，不建议修改，会导致上位机不兼容
@@ -48,7 +48,12 @@ EasyCon的版本号在`EasyCon.c`中，不建议修改，会导致上位机不�
 
 #### 回调
 
-主要是这三个，一个是负责EasyCon的运行时钟，一个是串口数据处理，还有一个是每条命令的发包数量回调
+主要是这四个：
+
+- 负责EasyCon的运行时钟，
+- 串口数据输入处理
+- 判断是否需要发送Report
+- Report发送后的回调处理
 
 ```c
 /* the main tick for 1 ms
@@ -58,14 +63,19 @@ extern void EasyCon_tick(void);
 
 /* serial state machine
  * need call when get a new serial date from uart
- * no data return -1
+ * no date return -1
  */
 extern void EasyCon_serial_task(int16_t byte);
 
-/* decrement
- * need call when a report sent
+/* check if need send report.
+ * need call in hid send task
  */
-extern void EasyCon_decrease_report_echo(void);
+extern bool EasyCon_need_send_report(void);
+
+/* need call when a report sent
+ * 
+ */
+extern void EasyCon_report_send_callback(void);
 ```
 
 
@@ -80,20 +90,20 @@ extern void EasyCon_decrease_report_echo(void);
  */
 extern uint8_t EasyCon_read_byte(uint8_t* addr);
 
-/* EasyCon write 1 byte to E2Prom or flash 
+/* EasyCon write n byte to E2Prom or flash 
  * need implement
  */
-extern void EasyCon_write_byte(uint8_t* addr,uint8_t value);
+extern void EasyCon_write_data(uint8_t* addr,uint8_t* data,uint16_t len);
 
-/* EasyCon read 2 byte from E2Prom or flash 
- * need implement
+/* EasyCon start write to E2Prom or flash callback
+ * optional implement
  */
-extern uint16_t EasyCon_read_2byte(uint16_t* addr);
+extern void EasyCon_write_start(uint8_t mode);
 
-/* EasyCon write 2 byte to E2Prom or flash 
- * need implement
+/* EasyCon write to E2Prom or flash end callback 
+ * optional implement
  */
-extern void EasyCon_write_2byte(uint16_t* addr,uint16_t value);
+extern void EasyCon_write_end(uint8_t mode);
 
 /* running led on
  * need implement
@@ -125,35 +135,35 @@ extern void reset_hid_report(void);
 /* set left stick in hid report.
  * need implement
  */
-extern void SetLeftStick(const uint8_t LX, const uint8_t LY);
+extern void set_left_stick(const uint8_t LX, const uint8_t LY);
 
 /* set right stick in hid report.
  * need implement
  */
-extern void SetRightStick(const uint8_t RX, const uint8_t RY);
+extern void set_right_stick(const uint8_t RX, const uint8_t RY);
 
 /* set button in hid report.
  * need implement
  */
-extern void SetButtons(const uint16_t Button);
+extern void set_buttons(const uint16_t Button);
 
 /* set button press in hid report.
  * need implement
  */
-extern void PressButtons(const uint16_t Button);
+extern void press_buttons(const uint16_t Button);
 
 /* set buttons release in hid report.
  * need implement
  */
-extern void ReleaseButtons(const uint16_t Button);
+extern void release_buttons(const uint16_t Button);
 
 /* set HAT in hid report.
  * need implement
  */
-extern void SetHATSwitch(const uint8_t HAT);
+extern void set_HAT_switch(const uint8_t HAT);
 ```
 
-还有两个接口是可选实现，主要是给flash上锁解锁使用的，其他情况下一般用不到
+还有两个接口是可选实现，主要是给flash上锁、解锁以及连续写等操作判断用的，其他情况下一般用不到
 
 ```
 /* EasyCon start write to E2Prom or flash callback
@@ -207,26 +217,13 @@ extern void EasyCon_script_stop(void);
 HID中主要是需要实现当echo_ms耗尽时，可以发出一份报文（这个机制主要是用来保证不丢键的）
 
 ```c
-// Process and deliver data from IN and OUT endpoints.
 void Report_Task(void)
 {
-  // If the device isn't connected and properly configured, we can't do anything here.
-  if (USB_DeviceState != DEVICE_STATE_Configured)
-    return;
-
-  // [Optimized] Only send data when changed.
-  if (echo_ms == 0)
-  {
-    // We'll create an empty report.
-    USB_JoystickReport_Input_t JoystickInputData;
-    // We'll then populate this report with what we want to send to the host.
-    GetNextReport(&JoystickInputData);
-    // Once populated, we can output this data to the host. We do this by first writing the data to the control stream.
-
-    Echo_Report();
-    // set interval
-    echo_ms = ECHO_INTERVAL;
-  }
+	if(EasyCon_need_send_report())
+	{
+		usbd_send((uint8_t *)&next_report, TAG_SEND_BUF);
+		EasyCon_report_send_callback();
+	}
 }
 ```
 
@@ -344,6 +341,5 @@ NEXT
 
 ## 可能有问题的点
 
-1. srand可能在单片机端实现有问题，用个伪随机表替代就行了
-2. EasyCon中可能有一些宏是math或者其他专属头文件的，现在没分离出来，后续考虑
-3. 整个程序运行理想情况是不会被阻塞的，注意不要在API中使用阻塞时间过长的操作，会影响脚本运行的正确性
+1. 整个程序运行理想情况是不会被阻塞的，注意不要在API中使用阻塞时间过长的操作，会影响脚本运行的正确性
+2. flash操作比较容易出问题，地址需要对齐，写入数据可能也需要成对拼接，操作的时候最好阅读一下源码再进行，否则很容易HardFault
