@@ -14,41 +14,25 @@
  */
 uint8_t EasyCon_read_byte(uint8_t* addr)
 {
-    
+
 }
 
-/* EasyCon write 1 byte to E2Prom or flash 
+/* EasyCon write n byte to E2Prom or flash 
  * need implement
  */
-void EasyCon_write_byte(uint8_t* addr,uint8_t value)
+void EasyCon_write_data(uint8_t* addr,uint8_t* data,uint16_t len)
 {
-    
-}
 
-/* EasyCon read 2 byte from E2Prom or flash 
- * need implement
- */
-uint16_t EasyCon_read_2byte(uint16_t* addr)
-{
-    
-}
-
-/* EasyCon write 2 byte to E2Prom or flash 
- * need implement
- */
-void EasyCon_write_2byte(uint16_t* addr,uint16_t value)
-{
-    
 }
 
 /* EasyCon start write to E2Prom or flash callback
  * optional implement
- * flash script mode:0
- * flash config mode:1
+ * flash script mode:0 could clean all
+ * flash config mode:1 need save other flash data
  */
 void EasyCon_write_start(uint8_t mode)
 {
-    
+
 }
 
 /* EasyCon write to E2Prom or flash end callback 
@@ -58,7 +42,7 @@ void EasyCon_write_start(uint8_t mode)
  */
 void EasyCon_write_end(uint8_t mode)
 {
-    
+
 }
 
 /* running led on
@@ -66,7 +50,7 @@ void EasyCon_write_end(uint8_t mode)
  */
 void EasyCon_runningLED_on(void)
 {
-    
+
 }
 
 /* running led off
@@ -74,7 +58,7 @@ void EasyCon_runningLED_on(void)
  */
 void EasyCon_runningLED_off(void)
 {
-    
+
 }
 
 /* data led blink
@@ -90,10 +74,9 @@ void EasyCon_blink_led(void)
  */
 void EasyCon_serial_send(const char DataByte)
 {
+
     EasyCon_blink_led();
 }
-
-// about hid report
 
 /* reset hid report to default.
  * need implement
@@ -114,7 +97,7 @@ void set_left_stick(const uint8_t LX, const uint8_t LY)
 /* set right stick in hid report.
  * need implement
  */
-void set_right_ttick(const uint8_t RX, const uint8_t RY)
+void set_right_stick(const uint8_t RX, const uint8_t RY)
 {
 
 }

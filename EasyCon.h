@@ -83,7 +83,8 @@
 #define _report_echo mem[INS_OFFSET + 13]
 #define _e_set mem[INS_OFFSET + 14]
 #define _e_set_t mem[INS_OFFSET + 15]
-#define _e_val *(uint16_t *)(mem + INS_OFFSET + 16) // external argument for next instruction (used for dynamic for-loop, wait etc.)
+// external argument for next instruction (used for dynamic for-loop, wait etc.)
+#define _e_val *(uint16_t *)(mem + INS_OFFSET + 16) 
 #define _script_running mem[INS_OFFSET + 18]
 #define _ri0 mem[INS_OFFSET + 19]
 #define _ri1 mem[INS_OFFSET + 20]
