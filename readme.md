@@ -62,8 +62,8 @@ EasyCon的版本号在`EasyCon.c`中，不建议修改，会导致上位机不�
 extern void EasyCon_tick(void);
 
 /* serial state machine
- * need call when get a new serial date from uart
- * no date return -1
+ * need call when get a new serial data from uart
+ * no data return -1
  */
 extern void EasyCon_serial_task(int16_t byte);
 
