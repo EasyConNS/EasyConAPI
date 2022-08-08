@@ -19,7 +19,7 @@ EasyCon的MCU的实现，只需要根据要求实现`EasyCon_API.c和EasyCon_API
 
 实现的demo在下面的仓库中
 
-> https://github.com/EasyConNS/EasyMCU
+> https://github.com/EasyConNS/EasyMCU_STM32F103C6T6
 
 
 
