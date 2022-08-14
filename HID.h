@@ -14,8 +14,6 @@
 #define STICK_CENTER 128
 #define STICK_MAX 255
 
-#define ECHO_INTERVAL 2
-
 // Type Defines
 // Enumeration for joystick buttons.
 typedef enum
@@ -64,10 +62,13 @@ typedef struct
 //extern volatile uint8_t echo_ms;
 
 void HIDInit(void);
+
 void HIDTask(void);
 
 void EVENT_USB_Device_Connect(void);
 void EVENT_USB_Device_Disconnect(void);
+void EVENT_USB_Device_ConfigurationChanged(void);
+void EVENT_USB_Device_ControlRequest(void);
 
 void ResetReport(void);
 void SetButtons(const uint16_t Button);

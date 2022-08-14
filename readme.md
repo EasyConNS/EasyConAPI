@@ -19,7 +19,7 @@ EasyCon的MCU的实现，只需要根据要求实现`EasyCon_API.c和EasyCon_API
 
 实现的demo在下面的仓库中
 
-> https://github.com/EasyConNS/EasyMCU_STM32F103C6T6
+> https://github.com/EasyConNS/EasyMCU_STM32
 
 
 
@@ -43,6 +43,16 @@ EasyCon的MCU的实现，只需要根据要求实现`EasyCon_API.c和EasyCon_API
 EasyCon的版本号在`EasyCon.c`中，不建议修改，会导致上位机不兼容
 
 - 注意内存是512字节的，需要格外注意`MEM_SIZE`大小，很容易出现溢出的情况
+
+
+
+HID报文的输出间隔，有的系统必须要大于等于7ms，否则会导致NS无法识别，有的则不需要
+
+```c
+// hid report interval some usb must >7 AVR jsut 2 enough
+// too small will make NS cant recognize
+#define ECHO_INTERVAL 2
+```
 
 
 

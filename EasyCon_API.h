@@ -14,8 +14,13 @@
 // EasyCon API, you need set the MEM_SIZE that could use in your SRAM and (EEPROM or Flash)
 // EEPROM or Flash need 4 bytes more than MEM_SIZE, so make sure you have enough space for it
 /**********************************************************************/
-#define MEM_SIZE      924
 // need EEPROM or Flash Size = MEM_SIZE + 4 
+#define MEM_SIZE      924
+
+// hid report interval some usb must >7 AVR jsut 2 enough
+// too small will make NS cant recognize
+#define ECHO_INTERVAL 2
+
 /**********************************************************************/
 // EasyCon API, you need to call them in somewhere
 /**********************************************************************/
