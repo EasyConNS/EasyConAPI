@@ -60,6 +60,11 @@ extern uint8_t EasyCon_read_byte(uint8_t* addr);
  */
 extern void EasyCon_write_data(uint8_t* addr,uint8_t* data,uint16_t len);
 
+/* EasyCon start read to E2Prom or flash callback
+ * optional implement
+ */
+extern void EasyCon_read_start();
+
 /* EasyCon start write to E2Prom or flash callback
  * optional implement
  */

@@ -30,6 +30,9 @@ static void binaryop(uint8_t op, uint8_t reg, int16_t value);
 void EasyCon_script_init(void)
 {
     uint16_t len = 0;
+    
+    EasyCon_read_start();
+
     if ((mem[0] != 0xFF) || (mem[1] != 0xFF))
     {
         len = mem[0] | ((mem[1] & 0x7F) << 8);

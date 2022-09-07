@@ -25,6 +25,14 @@ void EasyCon_write_data(uint8_t* addr,uint8_t* data,uint16_t len)
 
 }
 
+/* EasyCon start read to E2Prom or flash callback
+ * optional implement
+ */
+void EasyCon_read_start()
+{
+    
+}
+
 /* EasyCon start write to E2Prom or flash callback
  * optional implement
  * flash script mode:0 could clean all
