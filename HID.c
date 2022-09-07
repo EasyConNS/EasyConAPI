@@ -1,4 +1,5 @@
 #include "HID.h"
+#include "EasyCon_API.h"
 
 USB_JoystickReport_Input_t next_report;
 
