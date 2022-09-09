@@ -50,17 +50,12 @@ void HIDInit(void)
 	usbd_send((uint8_t *)&next_report, TAG_SEND_INIT_BUF);
 }
 
-void Report_Task(void)
+void HIDTask(void)
 {
+  // We need to run our task to process and deliver data for our IN and OUT endpoints.
 	if(EasyCon_need_send_report())
 	{
 		usbd_send((uint8_t *)&next_report, TAG_SEND_BUF);
 		EasyCon_report_send_callback();
 	}
-}
-
-void HIDTask(void)
-{
-  // We need to run our task to process and deliver data for our IN and OUT endpoints.
-  Report_Task();
 }

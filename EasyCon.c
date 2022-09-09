@@ -4,15 +4,15 @@
 static uint8_t mem[MEM_SIZE] = {0xFF, 0xFF, VERSION}; // preallocated memory for all purposes, as well as static instruction carrier
 
 // static variables
-static size_t serial_buffer_length = 0;               // current length of serial buffer
-static bool serial_command_ready = false;             // CMD_READY acknowledged, ready to receive command byte
-static uint8_t *flash_addr = 0;                       // start location for EEPROM flashing
-static uint16_t flash_index = 0;                      // current buffer index
-static uint16_t flash_count = 0;                      // number of bytes expected for this time
-static uint8_t *script_addr = 0;                      // address of next instruction
-static uint8_t *script_eof = 0;                       // address of EOF
-static uint16_t tail_wait = 0;                        // insert an extra wait before next instruction (used by compressed instruction)
-static uint32_t timer_elapsed = 0;                    // previous execution time
+static size_t serial_buffer_length = 0;   // current length of serial buffer
+static bool serial_command_ready = false; // CMD_READY acknowledged, ready to receive command byte
+static uint8_t *flash_addr = 0;           // start location for EEPROM flashing
+static uint16_t flash_index = 0;          // current buffer index
+static uint16_t flash_count = 0;          // number of bytes expected for this time
+static uint8_t *script_addr = 0;          // address of next instruction
+static uint8_t *script_eof = 0;           // address of EOF
+static uint16_t tail_wait = 0;            // insert an extra wait before next instruction (used by compressed instruction)
+static uint32_t timer_elapsed = 0;        // previous execution time
 static bool auto_run = false;
 static volatile uint8_t echo_ms = 0; // echo counter
 
@@ -30,7 +30,7 @@ static void binaryop(uint8_t op, uint8_t reg, int16_t value);
 void EasyCon_script_init(void)
 {
     uint16_t len = 0;
-    
+
     EasyCon_read_start();
 
     if ((mem[0] != 0xFF) || (mem[1] != 0xFF))
@@ -38,22 +38,22 @@ void EasyCon_script_init(void)
         len = mem[0] | ((mem[1] & 0x7F) << 8);
         // flash instructions from firmware
         EasyCon_write_start(0);
-        EasyCon_write_data((uint8_t *)0,mem,len);
+        EasyCon_write_data((uint8_t *)0, mem, len);
         // for saving flash times
-			  _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET+1)<<8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
-				_seed +=1;
+        _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET + 1) << 8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
+        _seed += 1;
         srand(_seed);
-				EasyCon_write_data((uint8_t *)SEED_OFFSET,(uint8_t*)&_seed,2);
+        EasyCon_write_data((uint8_t *)SEED_OFFSET, (uint8_t *)&_seed, 2);
         EasyCon_write_end(0);
     }
     else
     {
         // randomize
-			  _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET+1)<<8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
-				_seed +=1;
+        _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET + 1) << 8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
+        _seed += 1;
         srand(_seed);
         EasyCon_write_start(1);
-				EasyCon_write_data((uint8_t *)SEED_OFFSET,(uint8_t*)&_seed,2);
+        EasyCon_write_data((uint8_t *)SEED_OFFSET, (uint8_t *)&_seed, 2);
         EasyCon_write_end(1);
     }
     memset(mem, 0, sizeof(mem));
@@ -86,13 +86,6 @@ void EasyCon_script_init(void)
     auto_run = (EasyCon_read_byte((uint8_t *)1) >> 7) == 0;
 }
 
-void EasyCon_script_tick(void)
-{
-    // decrement waiting counter
-    if (wait_ms != 0 && (_report_echo == 0 || wait_ms > 1))
-        wait_ms--;
-}
-
 void EasyCon_tick(void)
 {
     // increment timer
@@ -100,7 +93,9 @@ void EasyCon_tick(void)
     // decrement echo counter
     if (echo_ms != 0)
         echo_ms--;
-    EasyCon_script_tick();
+    // decrement waiting counter
+    if (wait_ms != 0 && (_report_echo == 0 || wait_ms > 1))
+        wait_ms--;
 }
 
 void EasyCon_report_send_callback(void)
@@ -115,7 +110,7 @@ void EasyCon_report_send_callback(void)
 
 bool EasyCon_is_script_running(void)
 {
-    if(_script_running == 1)
+    if (_script_running == 1)
     {
         return true;
     }
@@ -149,9 +144,10 @@ void EasyCon_script_start(void)
     tail_wait = 0;
     memset(mem + VARSPACE_OFFSET, 0, sizeof(mem) - VARSPACE_OFFSET);
     _script_running = 1;
-    _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET+1)<<8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
+    _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET + 1) << 8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
 
-    if(_ledflag != 0) return;
+    if (_ledflag != 0)
+        return;
     EasyCon_runningLED_on();
 }
 
@@ -185,7 +181,8 @@ void EasyCon_script_task(void)
         {
             if (KEY(i) != 0)
             {
-                KEY(i)--;
+                KEY(i)
+                --;
                 if (KEY(i) == 0)
                 {
                     if (i == 32)
@@ -233,11 +230,11 @@ void EasyCon_script_task(void)
         _ins1 = EasyCon_read_byte(script_addr++);
         int32_t n;
         int16_t reg;
-				// 0b10000000
+        // 0b10000000
         if (_ins0 & 0x80)
         {
             // key/stick actions
-						// 0b01000000
+            // 0b01000000
             if ((_ins0 & 0x40) == 0)
             {
                 // Instruction : Key 0b11111
@@ -262,7 +259,7 @@ void EasyCon_script_task(void)
                     SETWAIT(REG(_e_val));
                     RESETAFTER(_keycode, 1);
                 }
-								// 0b00000001
+                // 0b00000001
                 else if ((_ins0 & 0x01) == 0)
                 {
                     // standard
@@ -272,7 +269,7 @@ void EasyCon_script_task(void)
                     SETWAIT(n);
                     RESETAFTER(_keycode, 1);
                 }
-								// 0b10000000
+                // 0b10000000
                 else if ((_ins1 & 0x80) == 0)
                 {
                     // compressed 0b01111111
@@ -294,7 +291,7 @@ void EasyCon_script_task(void)
                 // Instruction : Stick
                 _lr = (_ins0 >> 5) & 1;
                 _keycode = 32 | _lr;
-								// 0b11111
+                // 0b11111
                 _direction = _ins0 & 0x1F;
                 // modify report
                 if (_lr)
@@ -306,7 +303,7 @@ void EasyCon_script_task(void)
                 else
                 {
                     // LS
-                    set_left_stick( DX(_direction), DY(_direction));
+                    set_left_stick(DX(_direction), DY(_direction));
                     _report_echo = ECHO_TIMES;
                 }
                 // post effect
@@ -316,7 +313,7 @@ void EasyCon_script_task(void)
                     SETWAIT(REG(_e_val));
                     RESETAFTER(_keycode, 1);
                 }
-								// 0b10000000
+                // 0b10000000
                 else if ((_ins1 & 0x80) == 0)
                 {
                     // standard 0b01111111
@@ -339,9 +336,9 @@ void EasyCon_script_task(void)
             // flow control 0b1111
             switch ((_ins0 >> 3) & 0x0F)
             {
-						// 0b0000
+                // 0b0000
             case 0x00:
-								// 0b100
+                // 0b100
                 if ((_ins0 & 0x04) == 0)
                 {
                     // empty
@@ -350,7 +347,7 @@ void EasyCon_script_task(void)
                 {
                     // Instruction : SerialPrint
                     reg = _ins & ((1 << 9) - 1);
-										// 0b10
+                    // 0b10
                     if ((_ins0 & 0x02) == 0)
                     {
                         EasyCon_serial_send(reg);
@@ -364,7 +361,7 @@ void EasyCon_script_task(void)
                     break;
                 }
                 break;
-						// 0b0001
+                // 0b0001
             case 0x01:
                 // Instruction : Wait
                 if (E_SET)
@@ -372,7 +369,7 @@ void EasyCon_script_task(void)
                     // pre-loaded duration
                     n = REG(_e_val);
                 }
-								// 0b100
+                // 0b100
                 else if ((_ins0 & 0x04) == 0)
                 {
                     // standard
@@ -380,7 +377,7 @@ void EasyCon_script_task(void)
                     // unscale
                     n *= 10;
                 }
-								// 0b10
+                // 0b10
                 else if ((_ins0 & 0x02) == 0)
                 {
                     // extended
@@ -397,7 +394,7 @@ void EasyCon_script_task(void)
                 }
                 SETWAIT(n);
                 break;
-						// 0b0010
+                // 0b0010
             case 0x02:
                 // Instruction : For
                 if (_forstackindex == 0 || FOR_ADDR(_forstackindex - 1) != _addr)
@@ -437,7 +434,7 @@ void EasyCon_script_task(void)
                     break;
                 }
                 break;
-						// 0b0011
+                // 0b0011
             case 0x03:
                 // Instruction : Next 0b100
                 if (_ins0 & 0x04)
@@ -513,34 +510,34 @@ void EasyCon_script_task(void)
                     JUMP(FOR_ADDR(_forstackindex - 1));
                 }
                 break;
-						// 0b0100
+                // 0b0100
             case 0x04:
-								// 0b100
+                // 0b100
                 if (_ins0 & 0x04)
                 {
                     // comparisons 0b111
                     _ri0 = (_ins1 >> 3) & 0x07;
-										// 0b111
+                    // 0b111
                     _ri1 = _ins1 & 0x07;
-										// 0b11
+                    // 0b11
                     switch (_ins0 & 0x03)
                     {
-										// 0b00
+                        // 0b00
                     case 0x00:
                         // Instruction : Equal
                         _v = REG(_ri0) == REG(_ri1);
                         break;
-										// 0b01
+                        // 0b01
                     case 0x01:
                         // Instruction : NotEqual
                         _v = REG(_ri0) != REG(_ri1);
                         break;
-										// 0b10
+                        // 0b10
                     case 0x02:
                         // Instruction : LessThan
                         _v = REG(_ri0) < REG(_ri1);
                         break;
-										// 0b11
+                        // 0b11
                     case 0x03:
                         // Instruction : LessOrEqual
                         _v = REG(_ri0) <= REG(_ri1);
@@ -550,22 +547,22 @@ void EasyCon_script_task(void)
                     _flag = (bool)_flag;
                     switch (_ins1 >> 6)
                     {
-										// 0b00
+                        // 0b00
                     case 0x00:
                         // assign
                         _flag = _v;
                         break;
-										// 0b01
+                        // 0b01
                     case 0x01:
                         // and
                         _flag &= _v;
                         break;
-										// 0b10
+                        // 0b10
                     case 0x02:
                         // or
                         _flag |= _v;
                         break;
-										// 0b11
+                        // 0b11
                     case 0x03:
                         // xor
                         _flag ^= _v;
@@ -576,28 +573,28 @@ void EasyCon_script_task(void)
                 {
                     switch (_ins1 >> 5)
                     {
-										// 0b000
+                        // 0b000
                     case 0x00:
                         // Instruction : Break 0b10000
                         if ((_ins1 & 0x10) && !_flag)
                             break;
-												// 0b1111
+                        // 0b1111
                         _v = _ins1 & 0x0F;
                         _forstackindex -= _v;
                         E(1);
                         JUMP(FOR_NEXT(_forstackindex - 1));
                         break;
-										// 0b001
+                        // 0b001
                     case 0x01:
                         // Instruction : Continue 0b10000
                         if ((_ins1 & 0x10) && !_flag)
                             break;
-												// 0b1111
+                        // 0b1111
                         _v = _ins1 & 0x0F;
                         _forstackindex -= _v;
                         JUMP(FOR_NEXT(_forstackindex - 1));
                         break;
-										// 0b111
+                        // 0b111
                     case 0x07:
                         // Instruction : Return 0b10000
                         if ((_ins1 & 0x10) && !_flag)
@@ -618,12 +615,12 @@ void EasyCon_script_task(void)
                     }
                 }
                 break;
-						// 0b0101
+                // 0b0101
             case 0x05:
-								// 0b100
+                // 0b100
                 if ((_ins0 & 0x04) == 0)
                 {
-										// 0b111
+                    // 0b111
                     _ri0 = (_ins >> 7) & 0x07;
                     if (_ri0 == 0)
                     {
@@ -632,7 +629,7 @@ void EasyCon_script_task(void)
                             // binary operations on instant
                             _ins2 = EasyCon_read_byte(script_addr++);
                             _ins3 = EasyCon_read_byte(script_addr++);
-														// 0b111
+                            // 0b111
                             _v = (_ins >> 3) & 0x07;
                             _ri0 = _ins & 0x07;
                             reg = _insEx;
@@ -653,7 +650,7 @@ void EasyCon_script_task(void)
                         REG(_ri0) = reg;
                     }
                 }
-								// 0b110 0b100
+                // 0b110 0b100
                 else if ((_ins0 & 0x06) == 0x04)
                 {
                     // binary operations on register
@@ -662,7 +659,7 @@ void EasyCon_script_task(void)
                     _ri1 = _ins & 0x07;
                     binaryop(_v, _ri0, REG(_ri1));
                 }
-								// 0b111 0b110
+                // 0b111 0b110
                 else if ((_ins0 & 0x07) == 0x06)
                 {
                     // bitwise shift
@@ -687,27 +684,27 @@ void EasyCon_script_task(void)
                     _ri0 = _ins1 & 0x07;
                     switch ((_ins1 >> 3) & 0x0F)
                     {
-										// 0b0010
+                        // 0b0010
                     case 0x02:
                         // Instruction : Negative
                         if (_ri0 == 0)
                             break;
                         REG(_ri0) = -REG(_ri0);
                         break;
-										// 0b0011
+                        // 0b0011
                     case 0x03:
                         // Instruction : Not
                         if (_ri0 == 0)
                             break;
                         REG(_ri0) = ~REG(_ri0);
                         break;
-										// 0b0100
+                        // 0b0100
                     case 0x04:
                         // Instruction : Push
                         _stackindex++;
                         STACK(_stackindex - 1) = REG(_ri0);
                         break;
-									  // 0b0101
+                        // 0b0101
                     case 0x05:
                         // Instruction : Pop
                         if (_ri0 == 0)
@@ -715,19 +712,19 @@ void EasyCon_script_task(void)
                         REG(_ri0) = STACK(_stackindex - 1);
                         _stackindex--;
                         break;
-										// 0b0111
+                        // 0b0111
                     case 0x07:
                         // Instruction : StoreOp
                         E(_ri0);
                         break;
-										// 0b1000
+                        // 0b1000
                     case 0x08:
                         // Instruction : Bool
                         if (_ri0 == 0)
                             break;
                         REG(_ri0) = (bool)REG(_ri0);
                         break;
-										// 0b1001
+                        // 0b1001
                     case 0x09:
                         // Instruction : Rand
                         if (_ri0 == 0)
@@ -736,7 +733,7 @@ void EasyCon_script_task(void)
                         {
                             _seed = timer_ms;
                             EasyCon_write_start(1);
-														EasyCon_write_data((uint8_t *)SEED_OFFSET,(uint8_t*)&_seed,2);
+                            EasyCon_write_data((uint8_t *)SEED_OFFSET, (uint8_t *)&_seed, 2);
                             EasyCon_write_end(1);
                             srand(_seed);
                         }
@@ -745,31 +742,31 @@ void EasyCon_script_task(void)
                     }
                 }
                 break;
-						// 0b0110
+                // 0b0110
             case 0x06:
                 // branches
                 reg = _ins & ((1 << 9) - 1);
                 reg = reg << 7 >> 6;
                 switch ((_ins0 >> 1) & 0x3)
                 {
-								// 0b00
+                    // 0b00
                 case 0x00:
                     // Instruction : Branch
                     JUMPNEAR(reg);
                     break;
-								// 0b01
+                    // 0b01
                 case 0x01:
                     // Instruction : BranchTrue
                     if (_flag)
                         JUMPNEAR(reg);
                     break;
-								// 0b10
+                    // 0b10
                 case 0x02:
                     // Instruction : BranchFalse
                     if (!_flag)
                         JUMPNEAR(reg);
                     break;
-								// 0b11
+                    // 0b11
                 case 0x03:
                     // Instruction : Call
                     _callstackindex++;
@@ -790,42 +787,42 @@ static void binaryop(uint8_t op, uint8_t reg, int16_t value)
         return;
     switch (op)
     {
-		// 0b000
+        // 0b000
     case 0x00:
         // Mov
         REG(reg) = value;
         break;
-		// 0b001
+        // 0b001
     case 0x01:
         // Add
         REG(reg) += value;
         break;
-		// 0b010
+        // 0b010
     case 0x02:
         // Mul
         REG(reg) *= value;
         break;
-		// 0b011
+        // 0b011
     case 0x03:
         // Div
         REG(reg) /= value;
         break;
-		// 0b100
+        // 0b100
     case 0x04:
         // Mod
         REG(reg) %= value;
         break;
-		// 0b101
+        // 0b101
     case 0x05:
         // And
         REG(reg) &= value;
         break;
-		// 0b110
+        // 0b110
     case 0x06:
         // Or
         REG(reg) |= value;
         break;
-	  // 0b111
+        // 0b111
     case 0x07:
         // Xor
         REG(reg) ^= value;
@@ -848,7 +845,7 @@ void EasyCon_serial_task(int16_t byte)
         {
             // all bytes received,save them
             EasyCon_write_start(2);
-            EasyCon_write_data(flash_addr,mem,flash_count);
+            EasyCon_write_data(flash_addr, mem, flash_count);
             EasyCon_serial_send(REPLY_FLASHEND);
         }
     }
@@ -874,12 +871,12 @@ void EasyCon_serial_task(int16_t byte)
                 }
                 else
                 {
-                    //memset(&next_report, 0, sizeof(USB_JoystickReport_Input_t));
-                    set_buttons( (SERIAL_BUFFER(0) << 9) | (SERIAL_BUFFER(1) << 2) | (SERIAL_BUFFER(2) >> 5) );
-                    set_HAT_switch( (uint8_t)((SERIAL_BUFFER(2) << 3) | (SERIAL_BUFFER(3) >> 4)) );
-                    set_left_stick( (uint8_t)((SERIAL_BUFFER(3) << 4) | (SERIAL_BUFFER(4) >> 3)),
-                                    (uint8_t)((SERIAL_BUFFER(4) << 5) | (SERIAL_BUFFER(5) >> 2)));
-                    set_right_stick( (uint8_t)((SERIAL_BUFFER(5) << 6) | (SERIAL_BUFFER(6) >> 1)),
+                    // memset(&next_report, 0, sizeof(USB_JoystickReport_Input_t));
+                    set_buttons((SERIAL_BUFFER(0) << 9) | (SERIAL_BUFFER(1) << 2) | (SERIAL_BUFFER(2) >> 5));
+                    set_HAT_switch((uint8_t)((SERIAL_BUFFER(2) << 3) | (SERIAL_BUFFER(3) >> 4)));
+                    set_left_stick((uint8_t)((SERIAL_BUFFER(3) << 4) | (SERIAL_BUFFER(4) >> 3)),
+                                   (uint8_t)((SERIAL_BUFFER(4) << 5) | (SERIAL_BUFFER(5) >> 2)));
+                    set_right_stick((uint8_t)((SERIAL_BUFFER(5) << 6) | (SERIAL_BUFFER(6) >> 1)),
                                     (uint8_t)((SERIAL_BUFFER(6) << 7) | (SERIAL_BUFFER(7) & 0x7f)));
                     // set flag
                     _report_echo = ECHO_TIMES;
@@ -897,9 +894,9 @@ void EasyCon_serial_task(int16_t byte)
                 case CMD_DEBUG:;
                     uint32_t n;
                     // instruction count
-                    //uint8_t* count = (uint8_t*)(eeprom_read_byte((uint8_t*)0) | (eeprom_read_byte((uint8_t*)1) << 8));
-                    //for (uint8_t* i = 0; i < count; i++)
-                    //EasyCon_serial_send(eeprom_read_byte(i));
+                    // uint8_t* count = (uint8_t*)(eeprom_read_byte((uint8_t*)0) | (eeprom_read_byte((uint8_t*)1) << 8));
+                    // for (uint8_t* i = 0; i < count; i++)
+                    // EasyCon_serial_send(eeprom_read_byte(i));
 
                     // current loop variable
                     n = FOR_I(_forstackindex - 1);
@@ -932,7 +929,7 @@ void EasyCon_serial_task(int16_t byte)
                     _ledflag ^= 0x8;
                     // there is no end , for flash one byte force
                     EasyCon_write_start(1);
-										EasyCon_write_data((uint8_t *)LED_SETTING,(uint8_t*)&_ledflag,1);
+                    EasyCon_write_data((uint8_t *)LED_SETTING, (uint8_t *)&_ledflag, 1);
                     EasyCon_write_end(1);
                     EasyCon_runningLED_off();
                     EasyCon_serial_send(_ledflag);
@@ -968,11 +965,11 @@ void EasyCon_serial_task(int16_t byte)
                     EasyCon_serial_send(REPLY_ERROR);
                     break;
                 }
-								if(byte!=CMD_FLASH)
-								{
-									// lock flash
-									EasyCon_write_end(0);
-								}
+                if (byte != CMD_FLASH)
+                {
+                    // lock flash
+                    EasyCon_write_end(0);
+                }
             }
             else
             {
@@ -998,7 +995,7 @@ uint8_t EasyCon_is_LED_enable(void)
  */
 bool EasyCon_need_send_report(void)
 {
-    if(echo_ms==0)
+    if (echo_ms == 0)
     {
         return true;
     }
