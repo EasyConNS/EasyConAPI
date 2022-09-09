@@ -96,6 +96,9 @@ void reset_hid_report(void)
 
 /* set left stick in hid report.
  * need implement
+ * min 0 , mid 128 , max 255
+ * left    center     right
+ * up      center     down
  */
 void set_left_stick(const uint8_t LX, const uint8_t LY)
 {
@@ -104,6 +107,9 @@ void set_left_stick(const uint8_t LX, const uint8_t LY)
 
 /* set right stick in hid report.
  * need implement
+ * min 0 , mid 128 , max 255
+ * left    center     right
+ * up      center     down
  */
 void set_right_stick(const uint8_t RX, const uint8_t RY)
 {
