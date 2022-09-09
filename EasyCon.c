@@ -38,22 +38,22 @@ void EasyCon_script_init(void)
         len = mem[0] | ((mem[1] & 0x7F) << 8);
         // flash instructions from firmware
         EasyCon_write_start(0);
-        EasyCon_write_data((uint8_t *)0, mem, len);
+        EasyCon_write_data(0, mem, len);
         // for saving flash times
-        _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET + 1) << 8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
+        _seed = (uint16_t)EasyCon_read_byte(SEED_OFFSET + 1) << 8 | EasyCon_read_byte(SEED_OFFSET);
         _seed += 1;
         srand(_seed);
-        EasyCon_write_data((uint8_t *)SEED_OFFSET, (uint8_t *)&_seed, 2);
+        EasyCon_write_data(SEED_OFFSET, (uint8_t *)&_seed, 2);
         EasyCon_write_end(0);
     }
     else
     {
         // randomize
-        _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET + 1) << 8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
+        _seed = (uint16_t)EasyCon_read_byte(SEED_OFFSET + 1) << 8 | EasyCon_read_byte(SEED_OFFSET);
         _seed += 1;
         srand(_seed);
         EasyCon_write_start(1);
-        EasyCon_write_data((uint8_t *)SEED_OFFSET, (uint8_t *)&_seed, 2);
+        EasyCon_write_data(SEED_OFFSET, (uint8_t *)&_seed, 2);
         EasyCon_write_end(1);
     }
     memset(mem, 0, sizeof(mem));
@@ -81,9 +81,9 @@ void EasyCon_script_init(void)
     }
     _report_echo = ECHO_TIMES;
     // turn on/off led
-    _ledflag = EasyCon_read_byte((uint8_t *)LED_SETTING);
+    _ledflag = EasyCon_read_byte(LED_SETTING);
     // only if highest bit is 0
-    auto_run = (EasyCon_read_byte((uint8_t *)1) >> 7) == 0;
+    auto_run = (EasyCon_read_byte(1) >> 7) == 0;
 }
 
 void EasyCon_tick(void)
@@ -131,7 +131,7 @@ void EasyCon_script_auto_start(void)
 void EasyCon_script_start(void)
 {
     script_addr = (uint8_t *)2;
-    uint16_t eof = EasyCon_read_byte((uint8_t *)0) | (EasyCon_read_byte((uint8_t *)1) << 8);
+    uint16_t eof = EasyCon_read_byte(0) | (EasyCon_read_byte(1) << 8);
     if (eof == 0xFFFF)
         eof = 0;
     script_eof = (uint8_t *)(eof & 0x7FFF);
@@ -144,7 +144,7 @@ void EasyCon_script_start(void)
     tail_wait = 0;
     memset(mem + VARSPACE_OFFSET, 0, sizeof(mem) - VARSPACE_OFFSET);
     _script_running = 1;
-    _seed = (uint16_t)EasyCon_read_byte((uint8_t *)SEED_OFFSET + 1) << 8 | EasyCon_read_byte((uint8_t *)SEED_OFFSET);
+    _seed = (uint16_t)EasyCon_read_byte(SEED_OFFSET + 1) << 8 | EasyCon_read_byte(SEED_OFFSET);
 
     if (_ledflag != 0)
         return;
@@ -733,7 +733,7 @@ void EasyCon_script_task(void)
                         {
                             _seed = timer_ms;
                             EasyCon_write_start(1);
-                            EasyCon_write_data((uint8_t *)SEED_OFFSET, (uint8_t *)&_seed, 2);
+                            EasyCon_write_data(SEED_OFFSET, (uint8_t *)&_seed, 2);
                             EasyCon_write_end(1);
                             srand(_seed);
                         }
@@ -929,7 +929,7 @@ void EasyCon_serial_task(int16_t byte)
                     _ledflag ^= 0x8;
                     // there is no end , for flash one byte force
                     EasyCon_write_start(1);
-                    EasyCon_write_data((uint8_t *)LED_SETTING, (uint8_t *)&_ledflag, 1);
+                    EasyCon_write_data(LED_SETTING, (uint8_t *)&_ledflag, 1);
                     EasyCon_write_end(1);
                     EasyCon_runningLED_off();
                     EasyCon_serial_send(_ledflag);

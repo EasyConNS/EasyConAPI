@@ -53,12 +53,12 @@ extern void EasyCon_report_send_callback(void);
 /* EasyCon read 1 byte from E2Prom or flash 
  * need implement
  */
-extern uint8_t EasyCon_read_byte(uint8_t* addr);
+extern uint8_t EasyCon_read_byte(uint16_t addr);
 
 /* EasyCon write n byte to E2Prom or flash 
  * need implement
  */
-extern void EasyCon_write_data(uint8_t* addr,uint8_t* data,uint16_t len);
+extern void EasyCon_write_data(uint16_t addr,uint8_t* data,uint16_t len);
 
 /* EasyCon start read to E2Prom or flash callback
  * optional implement
