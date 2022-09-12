@@ -1,4 +1,5 @@
 #include "EasyCon.h"
+#include "EasyAmiibo.h"
 
 // global variables
 static uint8_t mem[MEM_SIZE] = {0xFF, 0xFF, VERSION}; // preallocated memory for all purposes, as well as static instruction carrier
@@ -9,6 +10,9 @@ static bool serial_command_ready = false; // CMD_READY acknowledged, ready to re
 static uint8_t *flash_addr = 0;           // start location for EEPROM flashing
 static uint16_t flash_index = 0;          // current buffer index
 static uint16_t flash_count = 0;          // number of bytes expected for this time
+
+static uint16_t color_index = 0;          // current buffer index
+
 static uint8_t *script_addr = 0;          // address of next instruction
 static uint8_t *script_eof = 0;           // address of EOF
 static uint16_t tail_wait = 0;            // insert an extra wait before next instruction (used by compressed instruction)
@@ -775,6 +779,10 @@ void EasyCon_script_task(void)
                     break;
                 }
                 break;
+                // 0b0111
+            case 0x07:
+                // amiibo instructions?
+                break;
             }
         }
     }
@@ -848,6 +856,13 @@ void EasyCon_serial_task(int16_t byte)
             EasyCon_write_data(flash_addr, mem, flash_count);
             EasyCon_serial_send(REPLY_FLASHEND);
         }
+    }
+    else if (color_index > 0)
+    {
+        SERIAL_BUFFER(12 - color_index) = byte;
+        color_index--;
+        EasyCon_ChangeColor(mem);
+        EasyCon_serial_send(REPLY_ACK);
     }
     else
     {
@@ -959,6 +974,38 @@ void EasyCon_serial_task(int16_t byte)
                 case CMD_SCRIPTSTOP:
                     EasyCon_script_stop();
                     EasyCon_serial_send(REPLY_SCRIPTACK);
+                    break;
+                case CMD_UNPAIR:
+                    EasyCon_Unpair();
+                    EasyCon_serial_send(REPLY_ACK);
+                    break;
+                case CMD_CHGMODE:
+                    if (serial_buffer_length != 2)
+                    {
+                        EasyCon_serial_send(REPLY_ERROR);
+                        break;
+                    }
+                    EasyCon_ChangeMode(SERIAL_BUFFER(0));
+                    EasyCon_serial_send(REPLY_ACK);
+                    break;
+                case CMD_CHGCOLOR:
+                    if (serial_buffer_length != 5)
+                    {
+                        EasyCon_serial_send(REPLY_ERROR);
+                        break;
+                    }
+                    uint16_t color_count = (SERIAL_BUFFER(2) | (SERIAL_BUFFER(3) << 7));
+                    if (color_count != 12)
+                    {
+                        EasyCon_serial_send(REPLY_ERROR);
+                        break;
+                    }
+                    EasyCon_serial_send(REPLY_ACK);
+                    break;
+                case CMD_SAV_AMB:
+                    // TODO
+                    EasyCon_SaveAmiibo(0);
+                    EasyCon_serial_send(REPLY_ACK);
                     break;
                 default:
                     // error

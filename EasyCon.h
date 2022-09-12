@@ -38,6 +38,11 @@
 #define CMD_SCRIPTSTOP 0x84
 #define CMD_VERSION 0x85
 #define CMD_LED 0x86
+#define CMD_UNPAIR 0x87
+#define CMD_CHGMODE 0x88
+#define CMD_CHGCOLOR 0x89
+#define CMD_SAV_AMB 0x90
+
 #define REPLY_ERROR 0x00
 #define REPLY_ACK 0xFF
 #define REPLY_BUSY 0xFE
