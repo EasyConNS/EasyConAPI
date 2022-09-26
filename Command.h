@@ -1,6 +1,5 @@
 #pragma once
 
-// CA1E 0.1 beta
 #define MCU_VERSION 0x47
 
 #define BUF_SIZE 16
@@ -26,15 +25,17 @@
 #define RLY_FLH_END 0x82
 #define RLY_SCRIPTACK 0x83
 
-typedef void (*CmdActionFuncType) (const uint8_t* data);
+#define cmd_senderrE(op)    cmd_senderr(op, 0,0)
 
 typedef enum
 {
-    IDLE,
-    BUTTON,
-    FLASH,
-    FLASH_START,
-}CommandAction_t;
+    ERR_OP,
+    ERR_LEN,
+    ERR_CRC,
+    ERR_UKN,
+}CommandError_t;
+
+typedef void (*CmdActionFuncType) (const uint8_t* data);
 
 typedef struct {
     uint8_t OP;
@@ -42,4 +43,11 @@ typedef struct {
     CmdActionFuncType ExeFunc;
 }CommandEntryType;
 
-#define ARRAY_COUNT(x)  (sizeof(x) / sizeof(x[0]))
+bool cmd_checkop(uint8_t opcode) {return true;}
+void cmd_dispatch(uint8_t opcode, const uint8_t* data, uint8_t len);
+void cmd_senderr(CommandError_t errType, uint8_t arg1, uint8_t arg2);
+
+void ExeEmptyOp(const uint8_t* data) {return;}
+void OpPong(const uint8_t* data);
+
+void SerialSend(uint8_t b);
