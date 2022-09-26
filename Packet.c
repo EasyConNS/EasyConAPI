@@ -10,7 +10,7 @@ uint8_t buffer_current = 0;
 uint8_t buffer_length = 0;
 CommandAction_t cmd_state = OP_READY;
 
-void CommandTask(uint8_t byte)
+void EasyCon_serial_task(uint8_t byte)
 {
   switch(cmd_state)
   {

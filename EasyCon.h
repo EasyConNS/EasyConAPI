@@ -1,8 +1,6 @@
 #ifndef _EASY_CON_H_
 #define _EASY_CON_H_
 
-#include "EasyCon_API.h"
-
 /**********************************************************************/
 // It's core of EasyCon, there is no need to change in most situations
 /**********************************************************************/
@@ -28,28 +26,6 @@
 #define INS_OFFSET 410
 #define SEED_OFFSET MEM_SIZE + 0
 #define LED_SETTING MEM_SIZE + 2
-
-// serial protocal control bytes and replies
-#define CMD_READY 0xA5
-#define CMD_DEBUG 0x80
-#define CMD_HELLO 0x81
-#define CMD_FLASH 0x82
-#define CMD_SCRIPTSTART 0x83
-#define CMD_SCRIPTSTOP 0x84
-#define CMD_VERSION 0x85
-#define CMD_LED 0x86
-#define CMD_UNPAIR 0x87
-#define CMD_CHGMODE 0x88
-#define CMD_CHGCOLOR 0x89
-#define CMD_SAV_AMB 0x90
-
-#define REPLY_ERROR 0x00
-#define REPLY_ACK 0xFF
-#define REPLY_BUSY 0xFE
-#define REPLY_HELLO 0x80
-#define REPLY_FLASHSTART 0x81
-#define REPLY_FLASHEND 0x82
-#define REPLY_SCRIPTACK 0x83
 
 // indexed variables and inline functions
 #define SERIAL_BUFFER(i) mem[(i)]

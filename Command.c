@@ -1,37 +1,56 @@
 #include "Command.h"
-#include "HID.h"
-// #include "LED.h"
 #include "Common.h"
+#include "EasyCon_API.h"
+/*
 
-#include <avr/pgmspace.h>
+void ExeEmptyOp(const uint8_t* data) {return;}
+void OpPong(const uint8_t* data);
+void TriggerLED(const uint8_t* data);
+
+*/
 
 uint8_t* data_ptr;
 
 const PROGMEM CommandEntryType CommandTable[] = {
   {
-    .OP = OP_IDL,
+    .OP = CMD_READY,
     .CmdDataLength = 0,
     .ExeFunc = ExeEmptyOp
   },
   {
-    .OP = OP_PNG,
+    .OP = CMD_READY,
+    .CmdDataLength = 0,
+    .ExeFunc = OpVersion
+  },
+  {
+    .OP = CMD_HELLO,
     .CmdDataLength = 0,
     .ExeFunc = OpPong
   },
   {
-    .OP = OP_ACT,
-    .CmdDataLength = 7,
-    .ExeFunc = ExeReleaseButton
+    .OP = CMD_LED,
+    .CmdDataLength = 0,
+    .ExeFunc = TriggerLED
   }
 };
 
 void OpPong(const uint8_t* data) {
-  SerialSend(RLY_PNG);
+  SerialSend(REPLY_HELLO);
+}
+
+void TriggerLED(const uint8_t* data) {
+  _ledflag ^= 0x8;
+  // there is no end , for flash one byte force
+  EasyCon_write_start(1);
+  EasyCon_write_data(LED_SETTING, (uint8_t *)&_ledflag, 1);
+  EasyCon_write_end(1);
+  EasyCon_runningLED_off();
+  EasyCon_serial_send(_ledflag);
 }
 
 static void CallCommandFunc(const CommandEntryType* CommandEntry) {
   CmdActionFuncType ExeFunc = pgm_read_ptr(&CommandEntry->ExeFunc);
-  ExeFunc(serialbuf);
+  ExeFunc(data_ptr);
 }
 
 static void cmd_dispatch(uint8_t OPCODE, const uint8_t* data, uint8_t len) {
@@ -59,7 +78,7 @@ static void cmd_dispatch(uint8_t OPCODE, const uint8_t* data, uint8_t len) {
 
 static void cmd_senderr(CommandError_t errType, uint8_t arg1, uint8_t arg2)
 {
-  SerialSend(RLY_ERR);
+  SerialSend(REPLY_ERROR);
 }
 
 void SerialSend(uint8_t b)
